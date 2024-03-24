@@ -160,22 +160,22 @@ class LocationViewModel : ViewModel() {
         // request previously, but didn't check the "Don't ask again" checkbox.
         if (shouldProvideRationale) {
             Log.i(TAG, "Displaying permission rationale to provide additional context.")
-//            showSnackbar(
-//                mainText = "Location needed for core functionality",
-//                actionText = "OK",
-//                snackbarHostState = snackbarHostState
-//            ) { // Build intent that displays the App settings screen.
-//                val intent = Intent()
-//                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
-//                val uri = Uri.fromParts(
-//                    "package",
-//                    //BuildConfig.APPLICATION_ID , null
-//                    "packageName", null
-//                )  // Amb la darrera API level deprecated. Ara és packageName
-//                intent.data = uri
-//                intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
-//                startActivity(context, intent, null)
-//            }
+            showSnackbar(
+                mainText = "Location needed for core functionality",
+                actionText = "OK",
+                snackbarHostState = snackbarHostState
+            ) { // Build intent that displays the App settings screen.
+                val intent = Intent()
+                intent.action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+                val uri = Uri.fromParts(
+                    "package",
+                    //BuildConfig.APPLICATION_ID , null
+                    "packageName", null
+                )  // Amb la darrera API level deprecated. Ara és packageName
+                intent.data = uri
+                intent.flags = android.content.Intent.FLAG_ACTIVITY_NEW_TASK
+                startActivity(context, intent, null)
+            }
 
             if (checkPermissions(context)) {
                 updateButtonColor()
@@ -207,38 +207,38 @@ class LocationViewModel : ViewModel() {
         return ((permissionFineState == PackageManager.PERMISSION_GRANTED) || (permissionCoarseState == PackageManager.PERMISSION_GRANTED))
     }
 
-//    @SuppressLint("CoroutineCreationDuringComposition")
-//    @Composable
-//    fun showSnackbar(
-//        mainText: String,
-//        actionText: String,
-//        snackbarHostState: SnackbarHostState,
-//        function: () -> Unit
-//    ) {
-//        //val scope = rememberCoroutineScope()
-//        scope.launch {
-//            val snackbarResult = snackbarHostState.showSnackbar(
-//                message = mainText,
-//                actionLabel = actionText,
-//            )
-//            when (snackbarResult) {
-//                SnackbarResult.Dismissed -> {
-//                    Log.i(TAG, "SnackbarIgnored")
-//                }
-//
-//                SnackbarResult.ActionPerformed -> {
-//                    // Request permission
-//                    locationPermissionLauncher.launch(
-//                        arrayOf(
-//                            Manifest.permission.ACCESS_FINE_LOCATION,
-//                            Manifest.permission.ACCESS_COARSE_LOCATION
-//                        )
-//                    )
-//                }
-//            }
-//        }
-//
-//    }
+    @SuppressLint("CoroutineCreationDuringComposition")
+    @Composable
+    fun showSnackbar(
+        mainText: String,
+        actionText: String,
+        snackbarHostState: SnackbarHostState,
+        function: () -> Unit
+    ) {
+        val scope = rememberCoroutineScope()
+        scope.launch {
+            val snackbarResult = snackbarHostState.showSnackbar(
+                message = mainText,
+                actionLabel = actionText,
+            )
+            when (snackbarResult) {
+                SnackbarResult.Dismissed -> {
+                    Log.i(TAG, "SnackbarIgnored")
+                }
+
+                SnackbarResult.ActionPerformed -> {
+                    // Request permission
+                    locationPermissionLauncher.launch(
+                        arrayOf(
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                        )
+                    )
+                }
+            }
+        }
+
+    }
 
 
     fun onPermissionResult(
