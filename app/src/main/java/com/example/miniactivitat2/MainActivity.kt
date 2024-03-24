@@ -1,5 +1,6 @@
 package com.example.miniactivitat2
 
+import android.Manifest
 import android.content.ContentValues.TAG
 import android.os.Bundle
 import android.util.Log
@@ -22,14 +23,44 @@ class MainActivity : ComponentActivity() {
         val mFusedClient = LocationServices.getFusedLocationProviderClient(this)
         val mSettingsClient = LocationServices.getSettingsClient(this)
         val locationViewModel = LocationViewModel()
+        //hauria de ser un rememberLauncherForActivityResult però no funciona
+        locationViewModel.locationPermissionLauncher =
+            registerForActivityResult(
+                ActivityResultContracts.RequestMultiplePermissions(),
+            ) { permissions ->
+                //locationViewModel.onPermissionResult(permissions, mFusedClient, mSettingsClient, snackbarHostState, this)
+                when {
+                    permissions.getOrDefault(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        false
+                    ) -> {
+                        // Precise location access granted.
+                        Log.i(
+                            TAG,
+                            "User agreed to make precise required location settings changes, updates requested, starting location updates."
+                        )
+                        locationViewModel.startUpdates(mFusedClient, mSettingsClient, this)
+                        locationViewModel.updateButtonColor()
+                        locationViewModel.getLastLocation(mFusedClient)
+                    }
+
+                    permissions.getOrDefault(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        false
+                    ) -> {
+                        // Only approximate location access granted.
+                        Log.i(
+                            TAG,
+                            "User agreed to make coarse required location settings changes, updates requested, starting location updates."
+                        )
+                        locationViewModel.startUpdates(mFusedClient, mSettingsClient, this)
+                        locationViewModel.updateButtonColor()
+                        locationViewModel.getLastLocation(mFusedClient)
+                    }
+                }
+            }
         setContent {
             val snackbarHostState = remember { SnackbarHostState() }
-            locationViewModel.locationPermissionLauncher =
-                registerForActivityResult(
-                    ActivityResultContracts.RequestMultiplePermissions(),
-                ){ permissions ->
-                        locationViewModel.onPermissionResult(permissions, mFusedClient, mSettingsClient, snackbarHostState, this)
-                }
             MiniActivitat2Theme {
                 Scaffold(snackbarHost = {
                     SnackbarHost(hostState = snackbarHostState)
@@ -44,9 +75,11 @@ class MainActivity : ComponentActivity() {
                     )
                 }
             }
+
             if (!locationViewModel.checkPermissions(this) && !locationViewModel.settings) {
                 locationViewModel.requestPermissions(this, snackbarHostState)
             }
+
         }
     }
 }
